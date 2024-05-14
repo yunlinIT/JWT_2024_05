@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +38,7 @@ class JwtTests {
         // Base64 인코딩 된 키를 이용해서 SecretKey 객체를 만든다.
         SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
 
-        assertThat(secretKeyPlain).isNotNull();
+        assertThat(secretKey).isNotNull();
     }
 
     @Test
@@ -44,15 +46,30 @@ class JwtTests {
     void t3() {
         SecretKey secretKey = jwtProvider.getSecretKey();
 
-        assertThat(secretKeyPlain).isNotNull();
+        assertThat(secretKey).isNotNull();
     }
 
     @Test
-    @DisplayName("SecretKey 객체는 단 한번만 생생 되어야 함.")
+    @DisplayName("SecretKey 객체는 단 한번만 생성 되어야 함.")
     void t4() {
         SecretKey secretKey1 = jwtProvider.getSecretKey();
         SecretKey secretKey2 = jwtProvider.getSecretKey();
 
         assertThat(secretKey1 == secretKey2).isTrue();
+    }
+
+    @Test
+    @DisplayName("accessToken 얻기")
+    void t5() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", 1L);
+        claims.put("username", "admin");
+        
+        // 지금(현재시각)으로부터 5시간의 유효기간을 가지는 토큰 생성
+        String accessToken = jwtProvider.genToken(claims, 60 * 60 * 5);
+
+        System.out.println("accessToken: " + accessToken);
+
+        assertThat(accessToken).isNotNull();
     }
 }
