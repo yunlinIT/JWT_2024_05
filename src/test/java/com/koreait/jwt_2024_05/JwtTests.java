@@ -72,4 +72,36 @@ class JwtTests {
 
         assertThat(accessToken).isNotNull();
     }
+
+    @Test
+    @DisplayName("accessToken은 만료가 되면 유효하지 않다.")
+    void t6() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", 1L);
+        claims.put("username", "admin");
+
+        String accessToken = jwtProvider.genToken(claims, -1);
+
+        System.out.println("accessToken: " + accessToken);
+
+        assertThat(jwtProvider.verify(accessToken)).isFalse();
+    }
+
+    @Test
+    @DisplayName("accessToken을 통해서 claims를 얻을 수 있다.")
+    void t7() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", 1L);
+        claims.put("username", "admin");
+
+        String accessToken = jwtProvider.genToken(claims, 60 * 60 * 5);
+
+        System.out.println("accessToken: " + accessToken);
+
+        assertThat(jwtProvider.verify(accessToken)).isTrue();
+
+        Map<String, Object> claimsFromToken = jwtProvider.getClaims(accessToken);
+
+        System.out.println("claimsFromToken: " + claimsFromToken);
+    }
 }
