@@ -1,8 +1,10 @@
 package com.koreait.jwt_2024_05;
 
+import com.koreait.jwt_2024_05.base.jwt.JwtProvider;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -13,6 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class JwtTests {
+    @Autowired
+    private JwtProvider jwtProvider;
+
     @Value("${custom.jwt.secretKey}")
     private String secretKeyPlain;
 
@@ -32,7 +37,22 @@ class JwtTests {
         SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded.getBytes());
 
         assertThat(secretKeyPlain).isNotNull();
+    }
 
+    @Test
+    @DisplayName("JwtProvider 객체로 SecretKey 객체 생성")
+    void t3() {
+        SecretKey secretKey = jwtProvider.getSecretKey();
 
+        assertThat(secretKeyPlain).isNotNull();
+    }
+
+    @Test
+    @DisplayName("SecretKey 객체는 단 한번만 생생 되어야 함.")
+    void t4() {
+        SecretKey secretKey1 = jwtProvider.getSecretKey();
+        SecretKey secretKey2 = jwtProvider.getSecretKey();
+
+        assertThat(secretKey1 == secretKey2).isTrue();
     }
 }
